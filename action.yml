@@ -1,0 +1,82 @@
+# Basic data
+name: 'Publish to NPM'
+description: 'Will publish a package to NPM registry'
+
+# Input values
+inputs:
+  nodeAuthToken:
+    description: 'Token to use when publishing'
+    required: true
+
+  gitUserName:
+    description: 'Name to use when committing'
+    required: true
+    default: 'AUTO RELEASE'
+
+  gitUserEmail:
+    description: 'Email to use when committing'
+    required: true
+    default: 'auto-release@example.com'
+
+  labelMajor:
+    description: 'Name used for the "major" label'
+    required: true
+    default: 'major'
+
+  labelMinor:
+    description: 'Name used for the "minor" label'
+    required: true
+    default: 'minor'
+
+  labelPatch:
+    description: 'Name used for the "major" label'
+    required: true
+    default: 'major'
+
+  npmBuildCmd:
+    description: 'Name of the npm command for building'
+    required: true
+    default: 'build'
+
+# Steps to execute
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build Package
+      shell: bash
+      run: npm run ${{ inputs.npmBuildCmd }}
+
+    - name: Setup git config
+      shell: bash
+      run: |
+          git config --global user.email "${{ inputs.gitUserEmail }}"
+          git config --global user.name "${{ inputs.gitUserName }}"
+
+    - name: Major label detected
+      shell: bash
+      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelMajor }}')
+      run: npm version major
+
+    - name: Minor label detected
+      shell: bash
+      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelMinor }}')
+      run: npm version minor
+
+    - name: Patch label detected
+      shell: bash
+      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelPatch }}')
+      run: npm version patch
+
+    - name: Git push
+      shell: bash
+      run: git push origin main && git push --tags
+
+    - name: Release Package
+      shell: bash
+      run: npm publish
+      env:
+          NODE_AUTH_TOKEN: ${{ inputs.nodeAuthToken }}
