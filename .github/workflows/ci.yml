@@ -5,5 +5,6 @@ jobs:
   label_issue:
     runs-on: ubuntu-latest
     steps:
-      run: |
-        git --no-pager diff --name-only $GITHUB_SHA..$GITHUB_BASE_REF >> $GITHUB_OUTPUT
+      - name: List changed files
+        run: |
+          git --no-pager diff --name-only $GITHUB_SHA..$GITHUB_BASE_REF >> $GITHUB_OUTPUT
