@@ -1,42 +1,42 @@
 # Basic data
-name: 'Publish to NPM'
-description: 'Will publish a package to NPM registry'
+name: "Publish to NPM"
+description: "Will publish a package to NPM registry"
 
 # Input values
 inputs:
-  nodeAuthToken:
-    description: 'Token to use when publishing'
+  nodePublishToken:
+    description: "Publishing token from NPM registry"
     required: true
 
   gitUserName:
-    description: 'Name to use when committing'
+    description: "Name to use when committing"
     required: true
-    default: 'AUTO RELEASE'
+    default: "AUTO RELEASE"
 
   gitUserEmail:
-    description: 'Email to use when committing'
+    description: "Email to use when committing"
     required: true
-    default: 'auto-release@example.com'
+    default: "auto-release@lokalise.com"
 
   labelMajor:
     description: 'Name used for the "major" label'
     required: true
-    default: 'major'
+    default: "major"
 
   labelMinor:
     description: 'Name used for the "minor" label'
     required: true
-    default: 'minor'
+    default: "minor"
 
   labelPatch:
-    description: 'Name used for the "major" label'
+    description: 'Name used for the "patch" label'
     required: true
-    default: 'major'
+    default: "patch"
 
-  npmBuildCmd:
-    description: 'Name of the npm command for building'
+  buildCmd:
+    description: "Build command"
     required: true
-    default: 'build'
+    default: "npm run build"
 
 # Steps to execute
 runs:
@@ -48,13 +48,13 @@ runs:
 
     - name: Build Package
       shell: bash
-      run: npm run ${{ inputs.npmBuildCmd }}
+      run: ${{ inputs.buildCmd }}
 
     - name: Setup git config
       shell: bash
       run: |
-          git config --global user.email "${{ inputs.gitUserEmail }}"
-          git config --global user.name "${{ inputs.gitUserName }}"
+        git config --global user.email "${{ inputs.gitUserEmail }}"
+        git config --global user.name "${{ inputs.gitUserName }}"
 
     - name: Major label detected
       shell: bash
@@ -79,4 +79,4 @@ runs:
       shell: bash
       run: npm publish
       env:
-          NODE_AUTH_TOKEN: ${{ inputs.nodeAuthToken }}
+        NODE_AUTH_TOKEN: ${{ inputs.nodePublishToken }}
