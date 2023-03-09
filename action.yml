@@ -51,10 +51,13 @@ runs:
       run: ${{ inputs.buildCmd }}
 
     - name: Setup git config
+      env:
+        USER_EMAIL: ${{ inputs.gitUserEmail }}
+        USER_NAME: ${{ inputs.gitUserName }}
       shell: bash
       run: |
-        git config --global user.email "${{ inputs.gitUserEmail }}"
-        git config --global user.name "${{ inputs.gitUserName }}"
+        git config --global user.email "$USER_EMAIL"
+        git config --global user.name "$USER_NAME"
 
     - name: Major label detected
       shell: bash
