@@ -4,36 +4,41 @@ description: "Will publish a package to NPM registry"
 
 # Input values
 inputs:
-  nodePublishToken:
+  node-automation-token:
     description: "Publishing token from NPM registry"
     required: true
 
-  gitUserName:
+  git-user-name:
     description: "Name to use when committing"
     required: true
     default: "AUTO RELEASE"
 
-  gitUserEmail:
+  git-user-email:
     description: "Email to use when committing"
     required: true
     default: "auto-release@lokalise.com"
 
-  labelMajor:
+  label-major:
     description: 'Name used for the "major" label'
     required: true
     default: "major"
 
-  labelMinor:
+  label-minor:
     description: 'Name used for the "minor" label'
     required: true
     default: "minor"
 
-  labelPatch:
+  label-patch:
     description: 'Name used for the "patch" label'
     required: true
     default: "patch"
 
-  buildCmd:
+  install-command:
+    required: true
+    description: "Installation command"
+    default: "npm ci"
+
+  build-command:
     description: "Build command"
     required: true
     default: "npm run build"
@@ -44,16 +49,16 @@ runs:
   steps:
     - name: Install Dependencies
       shell: bash
-      run: npm ci
+      run: ${{ inputs.install-command }}
 
     - name: Build Package
       shell: bash
-      run: ${{ inputs.buildCmd }}
+      run: ${{ inputs.build-command }}
 
     - name: Setup git config
       env:
-        USER_EMAIL: ${{ inputs.gitUserEmail }}
-        USER_NAME: ${{ inputs.gitUserName }}
+        USER_EMAIL: ${{ inputs.git-user-email }}
+        USER_NAME: ${{ inputs.git-user-name }}
       shell: bash
       run: |
         git config --global user.email "$USER_EMAIL"
@@ -61,17 +66,23 @@ runs:
 
     - name: Major label detected
       shell: bash
-      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelMajor }}')
+      env:
+        LABEL: ${{ inputs.label-major }}
+      if: contains(github.event.pull_request.labels.*.name, '$LABEL')
       run: npm version major
 
     - name: Minor label detected
       shell: bash
-      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelMinor }}')
+      env:
+        LABEL: ${{ inputs.label-minor }}
+      if: contains(github.event.pull_request.labels.*.name, '$LABEL')
       run: npm version minor
 
     - name: Patch label detected
       shell: bash
-      if: contains(github.event.pull_request.labels.*.name, '${{ inputs.labelPatch }}')
+      env:
+        LABEL: ${{ inputs.label-patch }}
+      if: contains(github.event.pull_request.labels.*.name, '$LABEL')
       run: npm version patch
 
     - name: Git push
@@ -82,4 +93,4 @@ runs:
       shell: bash
       run: npm publish
       env:
-        NODE_AUTH_TOKEN: ${{ inputs.nodePublishToken }}
+        NODE_AUTH_TOKEN: ${{ inputs.node-automation-token }}
