@@ -56,14 +56,14 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v3
       with:
         ref: main
         fetch-depth: 0 # fetch all commits so auto-changelog is correctly generating
         token: ${{ inputs.bot-access-token }}
 
-    - id: Setup Node
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
