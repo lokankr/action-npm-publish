@@ -4,9 +4,18 @@ description: "Will publish a package to NPM registry"
 
 # Input values
 inputs:
+  bot-access-token:
+    description: Personal access token for Bot account
+    required: true
+
   node-automation-token:
     description: "Publishing token from NPM registry"
     required: true
+
+  node-version:
+    description: Node version to run on
+    required: true
+    default: 18
 
   git-user-name:
     description: "Name to use when committing"
@@ -47,6 +56,18 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - id: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: main
+        fetch-depth: 0 # fetch all commits so auto-changelog is correctly generating
+        token: ${{ inputs.bot-access-token }}
+
+    - id: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
     - name: Install Dependencies
       shell: bash
       run: ${{ inputs.install-command }}
