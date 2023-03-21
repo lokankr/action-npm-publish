@@ -106,12 +106,12 @@ runs:
       if: contains(github.event.pull_request.labels.*.name, '$LABEL')
       run: npm version patch
 
+    # - name: Release Package
+    #   shell: bash
+    #   run: npm publish
+    #   env:
+    #     NODE_AUTH_TOKEN: ${{ inputs.node-automation-token }}
+
     - name: Git push
       shell: bash
       run: git push origin main && git push --tags
-
-    - name: Release Package
-      shell: bash
-      run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ inputs.node-automation-token }}
